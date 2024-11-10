@@ -1,3 +1,4 @@
+import { CinemetaService } from './../../api/cinemeta.service';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../api/api.service';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -9,7 +10,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
   styleUrls: ['./movies-info.component.scss']
 })
 export class MoviesInfoComponent implements OnInit {
-  id!: number;
+  id!: string;
   movie_data: any;
   external_data: any;
   activeTab: string = 'overview';
@@ -21,22 +22,61 @@ export class MoviesInfoComponent implements OnInit {
   recom_data: any[] = [];
   person_data: any;
   type: 'movie' = 'movie';
+  videoId!: string;
 
 
-  constructor(private apiService: ApiService, private router: ActivatedRoute, private spinner: NgxSpinnerService) { }
+  constructor(private apiService: ApiService,
+    private router: ActivatedRoute,
+    private cinemetaService: CinemetaService,
+    private spinner: NgxSpinnerService) { }
 
   ngOnInit() {
     this.router.params.subscribe((params: Params) => {
       this.spinner.show();
-      this.id = +params['id'];
-      this.getMovieInfo(this.id);
-      this.getMovieVideos(this.id);
-      this.getMoviesBackdrop(this.id);
-      this.getMovieCast(this.id);
-      this.getMovieRecommended(this.id, 1);
+      this.id = params['id'];
+      this.videoId = params['videoId'];
+      this.getMovie(this.id);
+      // this.getMovieInfo(this.id);
+      // this.getMovieVideos(this.id);
+      // this.getMoviesBackdrop(this.id);
+      // this.getMovieCast(this.id);
+      // this.getMovieRecommended(this.id, 1);
       setTimeout(() => {
         this.spinner.hide();
       }, 2000);
+    });
+  }
+
+  getMovie(imdbId: any) {
+    this.cinemetaService.getMovie(imdbId).subscribe(cinemetaResponse => {
+      const meta = cinemetaResponse.meta;
+      const movieItem = {
+        link: `/movie/${meta.imdb_id}`,
+        poster: meta.poster,
+        background: meta.background,
+        title: meta.name,
+        rating: meta.imdbRating,
+        vote: meta.imdbRating,
+        released: meta.released,
+        overview: meta.description,
+        director: meta.director,
+        writer: meta.writer,
+        popularity: meta.popularity?.toFixed(2),
+        awards: meta.awards,
+        country: meta.country,
+        genre: meta.genre,
+        genres: meta.genres,
+        status: meta.status,
+        runtime: meta.runtime,
+        tmdbid: meta.moviedb_id,
+        videoId: this.videoId
+      }
+      //this.moviesSlider.push(movieItem);
+      this.movie_data = movieItem;
+      this.external_data = {
+        imdb_id: meta.imdb_id,
+        moviedb_id: meta.moviedb_id
+      }
     });
   }
 

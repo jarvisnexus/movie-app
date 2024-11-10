@@ -3,6 +3,8 @@ import { ApiService } from '../../api/api.service';
 import { ActivatedRoute } from '@angular/router';
 import { delay } from 'rxjs/operators';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { CinemetaService } from '../../api/cinemeta.service';
+import { StreamTapeService } from '../../api/stream-tape.service';
 
 @Component({
   selector: 'app-movies',
@@ -12,6 +14,9 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class MoviesComponent implements OnInit {
   hero: any;
   movies_data: any[] = [];
+  moviesSlider: any[] = [];
+  movieFolderId = 'X-c5Jw4T87E';
+  imdbRegex = /\btt\d{7,8}\b/;
 
   movieCategories: { [key: string]: any[] } = {
     nowPlayingMovies: [],
@@ -20,15 +25,56 @@ export class MoviesComponent implements OnInit {
     topRatedMovies: [],
   };
 
-  constructor(private apiService: ApiService, private route: ActivatedRoute, private spinner: NgxSpinnerService) {}
+  constructor(private apiService: ApiService,
+    private cinemetaService: CinemetaService,
+    private streamTapeService: StreamTapeService,
+    private route: ActivatedRoute,
+    private spinner: NgxSpinnerService) { }
 
   ngOnInit() {
     this.spinner.show();
-    this.loadMovies();
-    this.getNowPlaying(2);
+    this.getMovies();
+    // this.loadMovies();
+    // this.getNowPlaying(2);
     setTimeout(() => {
       this.spinner.hide();
     }, 2000);
+  }
+
+  getMovies() {
+    this.streamTapeService.listFolderFiles(this.movieFolderId).subscribe(
+      streamTapeResponse => {
+        if (streamTapeResponse) {
+          streamTapeResponse.result.files.map((file: any) => {
+            const imdbId = file.name.match(this.imdbRegex);
+            if (imdbId) {
+              this.cinemetaService.getMovie(imdbId).subscribe(cinemetaResponse => {
+                const meta = cinemetaResponse.meta;
+                const movieItem = {
+                  link: `/movie/${meta.imdb_id}/${file.linkid}`,
+                  poster: meta.poster,
+                  background: meta.background,
+                  title: meta.name,
+                  rating: meta.imdbRating,
+                  vote: meta.imdbRating,
+                  released: meta.released,
+                  overview: meta.description,
+                  tmdbid: meta.moviedb_id,
+                  genre: meta.genre,
+                  genres: meta.genres,
+                  videoId: file.linkid
+                }
+                this.moviesSlider.push(movieItem);
+                this.movies_data.push(movieItem);
+              });
+            }
+          });
+        }
+      },
+      error => {
+        console.error(`Error fetching trending ${this.movieFolderId}:`, error);
+      }
+    )
   }
 
   getNowPlaying(page: number) {

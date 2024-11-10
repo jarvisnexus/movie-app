@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, Input, ViewChild } from '@angular/core';
 import { trigger, transition, animate, style } from '@angular/animations';
 import { ModalComponent } from '../modal/modal.component';
 import { ApiService } from '../../../api/api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-slider',
@@ -25,7 +26,9 @@ export class SliderComponent implements OnInit, OnDestroy {
   private intervalId: any;
   @ViewChild(ModalComponent) modal!: ModalComponent;
 
-  constructor(private apiService: ApiService){}
+  constructor(private apiService: ApiService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.sliderTimer();
@@ -43,7 +46,7 @@ export class SliderComponent implements OnInit, OnDestroy {
     }
   }
 
-  playNow(videoId: any) {
-    window.open(`https://streamtape.com/e/${videoId}`, '_blank');
+  watchNow(link: any) {
+    this.router.navigate([link]);
   }
 }  

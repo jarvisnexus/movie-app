@@ -8,8 +8,7 @@
         <img *ngIf="type === 'person' && data?.profile_path" alt="{{data?.name}}" class="lazyload"
             [src]="data?.profile_path" />
 
-        <img *ngIf="type === 'tv' && data?.poster" alt="{{data?.name}}" class="lazyload"
-            [src]="data?.poster" />
+        <img *ngIf="type === 'tv' && data?.poster" alt="{{data?.name}}" class="lazyload" [src]="data?.poster" />
     </div>
 </div>
 <div class="right">
@@ -79,21 +78,15 @@
             </li>
         </ul>
 
-        <!-- <ul class="nolist" *ngIf="type === 'tv'">
-            <li *ngIf="data?.first_air_date | date">
+        <ul class="nolist" *ngIf="type === 'tv'">
+            <!-- <li *ngIf="data?.released| date">
                 <div class="label">First Aired</div>
-                <div class="value">{{ data?.first_air_date | date }}</div>
+                <div class="value">{{ data?.released | date }}</div>
             </li>
-            <li *ngIf="data?.last_air_date">
-                <div class="label">Last Aired</div>
-                <div class="value">${{ data?.last_air_date | date }}</div>
-            </li>
-
             <li *ngIf="data?.created_by?.name">
                 <div class="label">Created By</div>
                 <div class="value">{{ data?.created_by?.name }}</div>
             </li>
-
             <li *ngIf="data?.season_number">
                 <div class="label">Seasons</div>
                 <div class="value">{{ data?.season_number }}</div>
@@ -115,14 +108,53 @@
             <li *ngIf="data?.languages">
                 <div class="label">language</div>
                 <div class="value">{{ data?.languages | languageName }}</div>
+            </li> -->
+            <li *ngIf="data?.released| date">
+                <div class="label">Released</div>
+                <div class="value">{{ data?.released| date }}</div>
             </li>
-    
+            <li *ngIf="data?.director">
+                <div class="label">Director</div>
+                <div class="comma_" *ngFor="let director of data?.director">
+                    <a>{{ director }}</a>
+                </div>
+            </li>
+            <li *ngIf="data?.runtime">
+                <div class="label">Runtime</div>
+                <div class="value">{{ data?.runtime }}</div>
+            </li>
+            <li *ngIf="data?.country">
+                <div class="label">Country</div>
+                <div class="value">{{ data?.country }}</div>
+            </li>
+            <li *ngIf="data?.genres">
+                <div class="label">Genre</div>
+                <div class="comma_" *ngFor="let genre of data?.genres">
+                    <a>{{ genre }}</a>
+                </div>
+            </li>
+            <li *ngIf="data?.status">
+                <div class="label">Status</div>
+                <div class="value">{{data?.status}}</div>
+            </li>
+            <li *ngIf="data?.popularity">
+                <div class="label">Popularity</div>
+                <div class="value">{{data?.popularity}}</div>
+            </li>
+            <li *ngIf="data?.awards">
+                <div class="label">Awards</div>
+                <div class="value">{{data?.awards}}</div>
+            </li>
+            <li *ngIf="data?.writer">
+                <div class="label">Writer</div>
+                <div class="comma_" *ngFor="let writer of data?.writer">
+                    <a>{{ writer }}</a>
+                </div>
+            </li>
         </ul>
- -->
-
     </div>
     <div class="external">
-        <ul class="nolist">            
+        <ul class="nolist">
             <li *ngIf="externalData?.imdb_id">
                 <a href="https://www.imdb.com/title/{{externalData?.imdb_id}}" target="_blank"
                     aria-label="Link to IMDb account" rel="noopener">
@@ -138,7 +170,7 @@
                         </path>
                     </svg>
                 </a>
-            </li>               
+            </li>
         </ul>
     </div>
 </div>

@@ -36,11 +36,6 @@ export class MoviesInfoComponent implements OnInit {
       this.id = params['id'];
       this.videoId = params['videoId'];
       this.getMovie(this.id);
-      // this.getMovieInfo(this.id);
-      // this.getMovieVideos(this.id);
-      // this.getMoviesBackdrop(this.id);
-      // this.getMovieCast(this.id);
-      // this.getMovieRecommended(this.id, 1);
       setTimeout(() => {
         this.spinner.hide();
       }, 2000);

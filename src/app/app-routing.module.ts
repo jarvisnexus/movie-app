@@ -29,7 +29,7 @@ const routes: Routes = [
     component: MoviesInfoComponent,
   },
   {
-    path: 'tv/:id',
+    path: 'tv/:id/:folderId',
     component: TvInfoComponent,
   },
   {

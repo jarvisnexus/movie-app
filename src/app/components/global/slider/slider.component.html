@@ -17,7 +17,7 @@
                 <div [style.width.%]="(hero.rating / 10) * 100"></div>
               </div>
               <div *ngIf="hero.rating > 0">
-                {{ hero.rating | numberWithCommas }} Reviews
+                {{ hero.rating }}
               </div>
             </div>
             <div class="info">

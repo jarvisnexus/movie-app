@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ApiService } from '../../../api/api.service';
@@ -9,53 +9,56 @@ import { ApiService } from '../../../api/api.service';
   styleUrl: './episodes.component.scss'
 })
 export class EpisodesComponent implements OnInit {
+  @Input() data: any;
+
   id!: number;
   episodes_data: any[] = [];
   selectedSeason: number = 1;
   seasons: any[] = [];
+  seasonEpisodes: any[] = [];
 
   constructor(private apiService: ApiService, private router: ActivatedRoute, private spinner: NgxSpinnerService) { }
 
   ngOnInit() {
-    this.router.params.subscribe((params: Params) => {
-      this.spinner.show();
-      this.id = +params['id'];
-
-      this.apiService.getTvShow(this.id).subscribe(
-        result => {
-          this.handleTvInfo(result);
-          this.spinner.hide();
-        },
-        error => {
-          console.error('Error fetching data', error);
-          this.spinner.hide();
-        }
-      );
-    });
+    this.groupSeasonAndEpisodes(this.data);
+    this.loadEpisodes(this.selectedSeason);
   }
 
-  handleTvInfo(result: any) {
-    this.seasons = result.seasons.filter((season: any) => season.season_number !== 0);
-    
-    this.selectedSeason = this.seasons.length > 0 ? this.seasons[0].season_number : 1;
-    
-    this.loadEpisodes(this.id, this.selectedSeason);
+  groupSeasonAndEpisodes(data: any) {
+    this.seasonEpisodes = data.videos.reduce((acc: any, episode: any) => {
+      const { season } = episode;
+      if (!acc[season]) {
+        acc[season] = [];
+      }
+      acc[season].push(episode);
+      return acc;
+    }, {});
   }
 
-  loadEpisodes(id: number, season: number): void {
-    this.apiService.getTvShowEpisodes(id, season)
-      .subscribe(
-        (data) => {
-          this.episodes_data = data.episodes;
-        },
-        (error) => {
-          console.error('Error fetching episodes:', error);
-        }
-      );
+  loadEpisodes(seasonNumber: number) {
+    const episodes = this.seasonEpisodes[seasonNumber];
+    this.episodes_data = episodes;
   }
 
   onSeasonChange(event: any): void {
     const selectedSeason = event.target.value;
-    this.loadEpisodes(this.id, selectedSeason);
+    this.loadEpisodes(selectedSeason);
+  }
+
+  onEpisodeChoose(episode: any): void {
+    const episodeSearch = this.formatSeasonEpisode(episode.season, episode.episode);
+    const episodeFile = this.data.episodeFiles.find((file:any) => file.name.includes(episodeSearch));
+    const videoId = episodeFile.linkid;
+    this.playNow(videoId)
+  }
+
+  formatSeasonEpisode(season: any, episode: any) {
+    const seasonStr = String(season).padStart(2, '0');
+    const episodeStr = String(episode).padStart(2, '0');
+    return `S${seasonStr}E${episodeStr}`;
+  }
+
+  playNow(videoId: any) {
+    window.open(`https://streamtape.com/e/${videoId}`, '_blank');
   }
 }

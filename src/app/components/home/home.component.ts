@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
   tvSlider: any[] = [];
   movies_data: any[] = [];
   movieFolderId = 'X-c5Jw4T87E';
-  tvShowsFolderId = '';
+  tvShowsFolderId = 'OVjqGAovWH4';
   imdbRegex = /\btt\d{7,8}\b/;
 
 
@@ -27,9 +27,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
     this.spinner.show();
     this.getMovies();
-    // this.fetchTrendingContent('movie', 1, 'movies');
-    // this.fetchTrendingContent('tv', 1, 'tvShows');
-    // this.getNowPlaying('movie', 1);
+    this.getTvShows();
     setTimeout(() => {
       this.spinner.hide();
     }, 2000);
@@ -73,64 +71,39 @@ export class HomeComponent implements OnInit {
     )
   }
 
-  // Slider Data
-  getNowPlaying(mediaType: 'movie', page: number) {
-    this.apiService.getNowPlaying(mediaType, page).pipe(delay(2000)).subscribe(
-      (res: any) => {
-        this.movies_data = res.results.map((item: any) => {
-          const movieItem = {
-            ...item,
-            link: `/movie/${item.id}`,
-            videoId: '' // Initialize with an empty string
-          };
-
-          // Fetch the trailer video key for each movie
-          this.apiService.getYouTubeVideo(item.id, 'movie').subscribe(
-            (videoRes: any) => {
-              const video = videoRes.results.find((vid: any) => vid.site === 'YouTube' && vid.type === 'Trailer');
-              if (video) {
-                movieItem.videoId = video.key; // Set the video key if available
-              }
-            },
-            videoError => {
-              console.error('Error fetching YouTube video for Movie:', videoError);
+  getTvShows() {
+    this.streamTapeService.listFolderFiles(this.tvShowsFolderId).subscribe(
+      streamTapeResponse => {
+        if (streamTapeResponse) {
+          let tvShowsFolders = streamTapeResponse.result.folders.slice(0, 50);
+          tvShowsFolders = tvShowsFolders.sort((a: any, b: any) => b.created_at - a.created_at);
+          tvShowsFolders.map((folder: any) => {
+            const imdbId = folder.name.match(this.imdbRegex);
+            if (imdbId) {
+              this.cinemetaService.getMovie(imdbId).subscribe(cinemetaResponse => {
+                const meta = cinemetaResponse.meta;
+                const tvShowItem = {
+                  link: `/tv/${meta.imdb_id}/${folder.id}`,
+                  poster: meta.poster,
+                  background: meta.background,
+                  title: meta.name,
+                  rating: meta.imdbRating,
+                  vote: meta.imdbRating,
+                  released: meta.released,
+                  overview: meta.description,
+                  tmdbid: meta.moviedb_id,
+                  genre: meta.genre,
+                  genres: meta.genres
+                }
+                this.tvSlider.push(tvShowItem);
+              });
             }
-          );
-
-          return movieItem;
-        });
-      },
-      error => {
-        console.error('Error fetching now playing data', error);
-      }
-    );
-  }
-
-  fetchTrendingContent(media: string, page: number, type: string): void {
-    this.apiService.getTrending(media, page).subscribe(
-      response => {
-        if (type === 'movies') {
-          this.moviesSlider = response.results.map((item: any) => ({
-            link: `/movie/${item.id}`,
-            imgSrc: item.poster_path ? `https://image.tmdb.org/t/p/w370_and_h556_bestv2${item.poster_path}` : null,
-            title: item.title,
-            rating: item.vote_average * 10,
-            vote: item.vote_average
-          }));
-        } else if (type === 'tvShows') {
-          this.tvSlider = response.results.map((item: any) => ({
-            link: `/tv/${item.id}`,
-            imgSrc: item.poster_path ? `https://image.tmdb.org/t/p/w370_and_h556_bestv2${item.poster_path}` : null,
-            title: item.name,
-            rating: item.vote_average * 10,
-            vote: item.vote_average
-          }));
+          });
         }
       },
       error => {
-        console.error(`Error fetching trending ${type}:`, error);
+        console.error(`Error fetching trending ${this.tvShowsFolderId}:`, error);
       }
-    );
+    )
   }
-
 }

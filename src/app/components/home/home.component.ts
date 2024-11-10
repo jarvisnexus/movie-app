@@ -39,7 +39,9 @@ export class HomeComponent implements OnInit {
     this.streamTapeService.listFolderFiles(this.movieFolderId).subscribe(
       streamTapeResponse => {
         if (streamTapeResponse) {
-          streamTapeResponse.result.files.map((file: any) => {
+          let movieFiles = streamTapeResponse.result.files.slice(0, 50);
+          movieFiles = movieFiles.sort((a: any, b: any) => b.created_at - a.created_at);
+          movieFiles.map((file: any) => {
             const imdbId = file.name.match(this.imdbRegex);
             if (imdbId) {
               this.cinemetaService.getMovie(imdbId).subscribe(cinemetaResponse => {

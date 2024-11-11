@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { ApiService } from '../../../api/api.service';
 
@@ -17,7 +17,10 @@ export class EpisodesComponent implements OnInit {
   seasons: any[] = [];
   seasonEpisodes: any[] = [];
 
-  constructor(private apiService: ApiService, private router: ActivatedRoute, private spinner: NgxSpinnerService) { }
+  constructor(private apiService: ApiService, 
+    private route: ActivatedRoute, 
+    private router: Router,
+    private spinner: NgxSpinnerService) { }
 
   ngOnInit() {
     this.groupSeasonAndEpisodes(this.data);
@@ -59,6 +62,6 @@ export class EpisodesComponent implements OnInit {
   }
 
   playNow(videoId: any) {
-    window.open(`https://streamtape.com/e/${videoId}`, '_blank');
+    this.router.navigate([`/video/${videoId}`]);
   }
 }

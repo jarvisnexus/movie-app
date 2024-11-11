@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA, isDevMode } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms'; 
 import { CommonModule } from '@angular/common'; 
@@ -48,6 +48,7 @@ import { LanguageNamePipe } from './components/global/pipe/language-name.pipe';
 import { EpisodesComponent } from './components/global/episodes/episodes.component';
 import { ModalComponent } from './components/global/modal/modal.component';
 import { SafeUrlPipe } from './components/global/pipe/safe-url.pipe';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 @NgModule({
   declarations: [
@@ -97,6 +98,12 @@ import { SafeUrlPipe } from './components/global/pipe/safe-url.pipe';
     CommonModule,
     BrowserAnimationsModule,
     NgxSpinnerModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
   ],
   providers: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

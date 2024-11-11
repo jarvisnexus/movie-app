@@ -40,6 +40,7 @@
             ],
             "styles": [
               "node_modules/ngx-spinner/animations/ball-triangle-path.css",
+              "node_modules/video.js/dist/video-js.min.css",
               "src/styles.scss"
             ],
             "scripts": []

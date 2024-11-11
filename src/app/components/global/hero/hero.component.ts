@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, Input, ViewChild } from '@angular/core';
 import { ModalComponent } from '../modal/modal.component';
 import { ApiService } from '../../../api/api.service';
@@ -12,9 +13,11 @@ export class HeroComponent {
 
   @ViewChild(ModalComponent) modal!: ModalComponent;
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService,
+    private router: Router
+  ) { }
 
   playNow(videoId: any) {
-    window.open(`https://streamtape.com/e/${videoId}`, '_blank');
+    this.router.navigate([`/video/${videoId}`]);
   }
 }

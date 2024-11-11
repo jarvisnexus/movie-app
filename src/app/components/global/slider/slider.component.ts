@@ -46,7 +46,7 @@ export class SliderComponent implements OnInit, OnDestroy {
     }
   }
 
-  watchNow(link: any) {
-    this.router.navigate([link]);
+  watchNow(videoId: any) {
+    this.router.navigate([`/video/${videoId}`]);
   }
 }  

@@ -10,6 +10,7 @@ import { MovieCategoryComponent } from './components/movie-category/movie-catego
 import { TvCategoryComponent } from './components/tv-category/tv-category.component';
 import { GenreComponent } from './components/genre/genre.component';
 import { SearchComponent } from './components/global/search/search.component';
+import { VideoPlayerComponent } from './components/video-player/video-player.component';
 
 const routes: Routes = [
   {
@@ -55,6 +56,10 @@ const routes: Routes = [
   {
     path: 'search',
     component: SearchComponent
+  },
+  {
+    path: 'video/:videoId',
+    component: VideoPlayerComponent
   },
   {
     path: '**',

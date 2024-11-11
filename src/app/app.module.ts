@@ -49,6 +49,7 @@ import { EpisodesComponent } from './components/global/episodes/episodes.compone
 import { ModalComponent } from './components/global/modal/modal.component';
 import { SafeUrlPipe } from './components/global/pipe/safe-url.pipe';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { VideoPlayerComponent } from './components/video-player/video-player.component';
 
 @NgModule({
   declarations: [
@@ -89,6 +90,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     EpisodesComponent,
     ModalComponent,
     SafeUrlPipe,
+    VideoPlayerComponent,
   ],
   imports: [
     BrowserModule,

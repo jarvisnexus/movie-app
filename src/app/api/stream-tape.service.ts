@@ -19,6 +19,18 @@ export class StreamTapeService {
       .pipe(catchError(this.handleError));
   }
 
+  createDownloadTicket(fileId: string): Observable<any> {
+    const params = this.buildParams({ file: fileId });
+    return this.http.get(`${this.apiUrl}/dlticket`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
+  getDownloadLink(fileId: string, downloadTicket: string): Observable<any> {
+    const params = this.buildParams({ file: fileId, ticket: downloadTicket });
+    return this.http.get(`${this.apiUrl}/dl`, { params })
+      .pipe(catchError(this.handleError));
+  }
+
   private buildParams(params: any): HttpParams {
     let httpParams = new HttpParams().set('login', this.login).set('key', this.key);
     for (const key in params) {

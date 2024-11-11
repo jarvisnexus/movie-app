@@ -38,11 +38,11 @@ const routes: Routes = [
     component: PersonComponent,
   },
   { 
-    path: 'movie/category/:category', 
+    path: 'movies/category/:category', 
     component: MovieCategoryComponent 
   },
   { 
-    path: 'tv/category/:category', 
+    path: 'tvshows/category/:category', 
     component: TvCategoryComponent 
   },
   {
@@ -50,7 +50,7 @@ const routes: Routes = [
     component: GenreComponent
   },
   {
-    path: 'tv/category/:id',
+    path: 'tvshows/category/:id',
     component: TvCategoryComponent,
   },
   {

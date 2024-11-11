@@ -1,5 +1,10 @@
 <div class="spacing">
-    <app-listing *ngIf="category === 'popular'" [items]="tvCategories['popularTv']" [title]="'Popular TV Shows'"
+
+    <app-listing *ngIf="category === 'all'" [items]="tvCategories['all']" [title]="'All TV Shows'"
+        [exploreLink]="'/tv'">
+    </app-listing>
+
+    <!-- <app-listing *ngIf="category === 'popular'" [items]="tvCategories['popularTv']" [title]="'Popular TV Shows'"
         [exploreLink]="'/tv'">
     </app-listing>
 
@@ -13,7 +18,7 @@
 
     <app-listing *ngIf="category === 'airing_today'" [items]="tvCategories['airingTodayTv']"
         [title]="'TV Shows Airing Today'" [exploreLink]="'/tv'">
-    </app-listing>
+    </app-listing> -->
 
     <div class="infinite-scroll-loading" *ngIf="isLoading">
         <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 44 44" stroke="#a6db38">

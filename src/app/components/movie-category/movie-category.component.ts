@@ -1,3 +1,5 @@
+import { StreamTapeService } from './../../api/stream-tape.service';
+import { CinemetaService } from './../../api/cinemeta.service';
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../api/api.service';
@@ -13,18 +15,26 @@ export class MovieCategoryComponent implements OnInit {
   category!: string;
   page: number = 1;
   isLoading: boolean = false;
+  movieFolderId = 'X-c5Jw4T87E';
+  imdbRegex = /\btt\d{7,8}\b/;
   movieCategories: { [key: string]: any[] } = {
+    all: [],
     popularMovies: [],
     topRatedMovies: [],
     upcomingMovies: [],
     nowPlayingMovies: [],
   };
+  streamTapeMovies: any[] = [];
+  currentIndex!: number;
+  moviesPerLoad: number = 10;
 
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private spinner: NgxSpinnerService
-  ) {}
+    private spinner: NgxSpinnerService,
+    private cinemetaService: CinemetaService,
+    private streamTapeService: StreamTapeService
+  ) { }
 
   ngOnInit() {
     this.spinner.show();
@@ -47,28 +57,41 @@ export class MovieCategoryComponent implements OnInit {
   fetchMovies(category: string, property: string): void {
     if (this.isLoading) return;
     this.isLoading = true;
-
-    this.apiService.getCategory(category, this.page, 'movie').subscribe(
-      (response) => {
-        const results = response.results;
-        for (const item of results) {
-          const movie = {
-            link: `/movie/${item.id}`,
-            imgSrc: item.poster_path ? `https://image.tmdb.org/t/p/w370_and_h556_bestv2${item.poster_path}` : null,
-            title: item.title,
-            rating: item.vote_average * 10,
-            vote: item.vote_average,
-          };
-          this.movieCategories[property].push(movie);
-        }
-        this.isLoading = false;
-        this.page++;
+    this.streamTapeService.listFolderFiles(this.movieFolderId).subscribe(
+      streamTapeResponse => {
+        if (streamTapeResponse) {
+          let movieFiles = streamTapeResponse.result.files;
+          movieFiles = movieFiles.sort((a: any, b: any) => b.created_at - a.created_at).slice(0, 100);
+          movieFiles.map((file: any) => {
+            const imdbId = file.name.match(this.imdbRegex);
+            if (imdbId) {
+              this.cinemetaService.getMovie(imdbId).subscribe(cinemetaResponse => {
+                const meta = cinemetaResponse.meta;
+                const movieItem = {
+                  link: `/movie/${meta.imdb_id}/${file.linkid}`,
+                  poster: meta.poster,
+                  background: meta.background,
+                  title: meta.name,
+                  rating: meta.imdbRating,
+                  vote: meta.imdbRating,
+                  released: meta.released,
+                  overview: meta.description,
+                  tmdbid: meta.moviedb_id,
+                  genre: meta.genre,
+                  genres: meta.genres,
+                  videoId: file.linkid
+                }
+                this.movieCategories[category].push(movieItem);
+              });
+            }
+          });
+          this.isLoading = false;
+        }     
       },
-      (error) => {
-        console.error(`Error fetching ${category} movies:`, error);
-        this.isLoading = false;
+      error => {
+        console.error(`Error fetching movies ${this.movieFolderId}:`, error);
       }
-    );
+    )
   }
 
   getCategoryProperty(category: string): string {
@@ -82,17 +105,17 @@ export class MovieCategoryComponent implements OnInit {
       case 'now_playing':
         return 'nowPlayingMovies';
       default:
-        return '';
+        return 'all';
     }
   }
 
-  @HostListener('window:scroll', ['$event'])
-  onScroll(event: Event) {
-    const pos = (document.documentElement.scrollTop || document.body.scrollTop) + window.innerHeight;
-    const max = document.documentElement.scrollHeight || document.body.scrollHeight;
-    
-    if (pos > max - 100) {
-      this.loadCategoryMovies(this.category);
-    }
-  }
+  // @HostListener('window:scroll', ['$event'])
+  // onScroll(event: Event) {
+  //   const pos = (document.documentElement.scrollTop || document.body.scrollTop) + window.innerHeight;
+  //   const max = document.documentElement.scrollHeight || document.body.scrollHeight;
+
+  //   if (pos > max - 100) {
+  //     this.loadMoreMovies();
+  //   }
+  // }
 }
